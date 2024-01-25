@@ -33,5 +33,19 @@ namespace WebAPI_Demo.Controllers
 
             return Ok(_responseDTO);
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest model)
+        {
+            var loginResponse = await _authService.Login(model);
+            if (loginResponse.User == null)
+            {
+                _responseDTO.IsSuccess = false;
+                _responseDTO.Message = "Username or password is incorrect";
+                return BadRequest(_responseDTO);
+            }
+            _responseDTO.Result = loginResponse;
+            return Ok(_responseDTO);
+        }
     }
 }

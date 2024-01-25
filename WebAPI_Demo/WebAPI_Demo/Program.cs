@@ -1,10 +1,16 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using WebAPI_Demo.Data;
 using WebAPI_Demo.Models;
 using WebAPI_Demo.Services.IServices;
 using WebAPI_Demo.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using WebAPI_Demo.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +31,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Xác thực và ủy quyền vào API 
+builder.AddAppAuthentication();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -38,6 +47,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
