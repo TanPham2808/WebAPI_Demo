@@ -6,5 +6,6 @@ namespace WebAPI_Demo.Services.IServices
     {
         Task<string> Register(RegisterationRequest userDTO);
         Task<LoginResponseDTO> Login(LoginRequest loginRequestDTO);
+        Task<bool> AssignRole(string email, string roleName);
     }
 }

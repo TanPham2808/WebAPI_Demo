@@ -47,5 +47,20 @@ namespace WebAPI_Demo.Controllers
             _responseDTO.Result = loginResponse;
             return Ok(_responseDTO);
         }
+
+
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRole(string email, string role)
+        {
+            var assignRoleSuccessful = await _authService.AssignRole(email, role.ToUpper());
+            if (!assignRoleSuccessful)
+            {
+                _responseDTO.IsSuccess = false;
+                _responseDTO.Message = "Error assign";
+                return BadRequest(_responseDTO);
+            }
+
+            return Ok(_responseDTO);
+        }
     }
 }

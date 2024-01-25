@@ -16,18 +16,22 @@ namespace WebAPI_Demo.Services
     {
         private readonly AppDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly JWTOption _jWTOption;
 
         public AuthService(AppDbContext db, 
             UserManager<IdentityUser> userManager, 
             IConfiguration config,
-            IOptions<JWTOption> jWTOption)
+            IOptions<JWTOption> jWTOption,
+            RoleManager<IdentityRole> roleManager
+            )
         {
             _db = db;
             _userManager = userManager;
             _config = config;
             _jWTOption = jWTOption.Value;
+            _roleManager = roleManager;
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequest loginRequestDTO)
@@ -104,6 +108,22 @@ namespace WebAPI_Demo.Services
             }
 
             return "Error register";
+        }
+
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+            if (user != null)
+            {
+                if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+                {
+                    // Tạo role nếu không tồn tại
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult();
+                }
+                await _userManager.AddToRoleAsync(user, roleName);
+                return true;
+            }
+            return false;
         }
 
         public string GenerateToken(IdentityUser identityUser, IEnumerable<string> roles)
