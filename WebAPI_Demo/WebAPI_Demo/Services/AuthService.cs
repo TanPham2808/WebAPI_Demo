@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using WebAPI_Demo.Data;
 using WebAPI_Demo.Models;
+using WebAPI_Demo.Rediscache.IServices;
 using WebAPI_Demo.Services.IServices;
 
 namespace WebAPI_Demo.Services
@@ -19,12 +20,14 @@ namespace WebAPI_Demo.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly JWTOption _jWTOption;
+        private readonly ICacheService _cacheService;
 
         public AuthService(AppDbContext db, 
             UserManager<IdentityUser> userManager, 
             IConfiguration config,
             IOptions<JWTOption> jWTOption,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<IdentityRole> roleManager,
+            ICacheService cacheService
             )
         {
             _db = db;
@@ -32,41 +35,54 @@ namespace WebAPI_Demo.Services
             _config = config;
             _jWTOption = jWTOption.Value;
             _roleManager = roleManager;
+            _cacheService = cacheService;
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequest loginRequestDTO)
         {
-            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == loginRequestDTO.UserName);
-            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
-
-            if (user == null || isValid == false)
+            // Check cache data
+            var cacheData = _cacheService.GetData<LoginResponseDTO>(loginRequestDTO.UserName);
+            if (cacheData == null )
             {
-                return new LoginResponseDTO()
+                var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == loginRequestDTO.UserName);
+                bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
+
+                if (user == null || isValid == false)
                 {
-                    User = null,
-                    Token = ""
+                    return new LoginResponseDTO()
+                    {
+                        User = null,
+                        Token = ""
+                    };
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                // Generate JWT Token
+                var token = GenerateToken(user, roles);
+
+                UserDTO userDTO = new()
+                {
+                    Email = user.Email,
+                    ID = user.Id,
+                    PhoneNumber = user.PhoneNumber
                 };
+
+                LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+                {
+                    User = userDTO,
+                    Token = token,
+                };
+
+                // Set expiry time
+                var expiryTime = DateTimeOffset.Now.AddSeconds(30);
+
+                cacheData = loginResponseDTO;
+
+                _cacheService.SetData(loginResponseDTO.User.Email, cacheData, expiryTime);
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-
-            // Generate JWT Token
-            var token = GenerateToken(user, roles);
-
-            UserDTO userDTO = new()
-            {
-                Email = user.Email,
-                ID = user.Id,
-                PhoneNumber = user.PhoneNumber
-            };
-
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
-            {
-                User = userDTO,
-                Token = token,
-            };
-
-            return loginResponseDTO;
+            return cacheData;
         }
 
         public async Task<string> Register(RegisterationRequest registerUser)

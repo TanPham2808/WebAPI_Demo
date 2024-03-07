@@ -2,3 +2,4 @@
 - CRUD product
 - Generate JWT Token
 - Xác thực & Ủy quyền API
+- Apply Redis Cache

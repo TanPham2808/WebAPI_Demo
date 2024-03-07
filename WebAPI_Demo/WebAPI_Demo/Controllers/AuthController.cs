@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using WebAPI_Demo.Models;
+using WebAPI_Demo.Rediscache.IServices;
 using WebAPI_Demo.Services.IServices;
 
 namespace WebAPI_Demo.Controllers
