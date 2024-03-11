@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using WebAPI_Demo.Data;
 using WebAPI_Demo.Models;
@@ -33,6 +34,12 @@ namespace WebAPI_Demo.Services
             {
                 _res.IsSuccess = false;
                 _res.Message = ex.Message;
+
+                // Cách Custom Exception giống FAP
+                //ResponseCustomDTO.BadRequest(ex.ToString());
+
+                // Cách Custom Exception giống Youtube
+
             }
 
             return _res;
