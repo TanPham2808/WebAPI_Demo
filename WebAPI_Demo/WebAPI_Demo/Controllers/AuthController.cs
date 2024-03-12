@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using WebAPI_Demo.Middleware;
 using WebAPI_Demo.Models;
 using WebAPI_Demo.Rediscache.IServices;
 using WebAPI_Demo.Services.IServices;
@@ -44,6 +45,9 @@ namespace WebAPI_Demo.Controllers
                 _responseDTO.IsSuccess = false;
                 _responseDTO.Message = "Username or password is incorrect";
                 return BadRequest(_responseDTO);
+
+                //throw new BadRequestException("Invalid Leave Allocation Request");
+
             }
             _responseDTO.Result = loginResponse;
             return Ok(_responseDTO);

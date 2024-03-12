@@ -8,6 +8,7 @@ using WebAPI_Demo.Extensions;
 using AutoMapper;
 using WebAPI_Demo;
 using WebAPI_Demo.Rediscache;
+using WebAPI_Demo.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()));
 
 var app = builder.Build();
+
+// Custom ProblemDetails nếu có lỗi trả về
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
