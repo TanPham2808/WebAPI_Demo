@@ -3,3 +3,4 @@
 - Generate JWT Token
 - Xác thực & Ủy quyền API
 - Apply Redis Cache
+- Middleware Exception Detail
