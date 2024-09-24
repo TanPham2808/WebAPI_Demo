@@ -42,11 +42,11 @@ namespace WebAPI_Demo.Controllers
             var loginResponse = await _authService.Login(model);
             if (loginResponse.User == null)
             {
-                _responseDTO.IsSuccess = false;
-                _responseDTO.Message = "Username or password is incorrect";
-                return BadRequest(_responseDTO);
+                //_responseDTO.IsSuccess = false;
+                //_responseDTO.Message = "Username or password is incorrect";
+                //return BadRequest(_responseDTO);
 
-                //throw new BadRequestException("Invalid Leave Allocation Request");
+                throw new BadRequestException("Invalid Leave Allocation Request");
 
             }
             _responseDTO.Result = loginResponse;

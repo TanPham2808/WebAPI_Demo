@@ -21,13 +21,15 @@ namespace WebAPI_Demo.Services
         private readonly IConfiguration _config;
         private readonly JWTOption _jWTOption;
         private readonly ICacheService _cacheService;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(AppDbContext db, 
             UserManager<IdentityUser> userManager, 
             IConfiguration config,
             IOptions<JWTOption> jWTOption,
             RoleManager<IdentityRole> roleManager,
-            ICacheService cacheService
+            ICacheService cacheService,
+            ILogger<AuthService> logger
             )
         {
             _db = db;
@@ -36,10 +38,12 @@ namespace WebAPI_Demo.Services
             _jWTOption = jWTOption.Value;
             _roleManager = roleManager;
             _cacheService = cacheService;
+            _logger = logger;
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequest loginRequestDTO)
         {
+            _logger.LogInformation("Start login flow");
             // Check cache data
             var cacheData = _cacheService.GetData<LoginResponseDTO>(loginRequestDTO.UserName);
             if (cacheData == null )

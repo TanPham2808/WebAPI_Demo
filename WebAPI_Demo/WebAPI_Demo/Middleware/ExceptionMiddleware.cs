@@ -5,9 +5,11 @@ namespace WebAPI_Demo.Middleware
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
-        public ExceptionMiddleware(RequestDelegate next)
+        private readonly ILogger<ExceptionMiddleware> _logger;
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext httpContext)
@@ -18,6 +20,12 @@ namespace WebAPI_Demo.Middleware
             }
             catch (Exception ex)
             {
+                var errorId = Guid.NewGuid();
+
+                // Log This Exception
+                _logger.LogError(ex, $"{errorId} : {ex.Message}");
+
+                // Custom Exception
                 await HandleExceptionAsync(httpContext, ex);
             }
         }
