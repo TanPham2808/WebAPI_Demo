@@ -4,3 +4,4 @@
 - Xác thực & Ủy quyền API
 - Apply Redis Cache
 - Middleware Exception Detail
+- Sử dụng logger
