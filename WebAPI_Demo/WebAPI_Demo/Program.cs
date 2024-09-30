@@ -9,6 +9,8 @@ using AutoMapper;
 using WebAPI_Demo;
 using WebAPI_Demo.Rediscache;
 using WebAPI_Demo.Middleware;
+using WebAPI_Demo.ServicesCondition;
+using WebAPI_Demo.ServicesCondition.IServiceCondition;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,25 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddRedisCacheService();
+
+// DI có điều kiện
+builder.Services.AddScoped<EuropeTaxCaculator>();
+builder.Services.AddScoped<VietNamTaxCaculator>();
+builder.Services.AddScoped<Func<UserLocations, ITaxCalculator>>(
+    ServiceProvider => key =>
+    {
+        switch (key)
+        {
+            case UserLocations.Europe:
+                return ServiceProvider.GetService<EuropeTaxCaculator>();
+            case UserLocations.VietNam:
+                return ServiceProvider.GetService<VietNamTaxCaculator>();
+            default: return null;
+        }
+    }
+);
+builder.Services.AddScoped<PurchaseService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
