@@ -5,3 +5,4 @@
 - Apply Redis Cache
 - Middleware Exception Detail
 - Sử dụng logger
+- Có sử dụng Dependencies có điều kiện (tính thuế dựa vào location của User)
